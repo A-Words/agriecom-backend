@@ -31,6 +31,11 @@
 		<springdoc.version>2.6.0</springdoc.version>
 	</properties>
 	<dependencies>
+		<!-- Liquibase for database migrations -->
+		<dependency>
+			<groupId>org.liquibase</groupId>
+			<artifactId>liquibase-core</artifactId>
+		</dependency>
 		<!-- Web & Validation 已有 -->
 
 		<!-- Data: JPA + JDBC (JPA 传递引入 JDBC) -->
