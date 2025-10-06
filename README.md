@@ -14,6 +14,12 @@
 - SPRING_REDIS_PASSWORD (default: empty)
 - SPRINGDOC_API_DOCS_PATH (default: /v3/api-docs)
 - SPRINGDOC_SWAGGER_UI_PATH (default: /swagger-ui.html)
+- SPRING_PROFILES_ACTIVE (default: empty; set to `dev` or `prod`)
+- SPRING_LIQUIBASE_ENABLED (default: true)
+- SPRING_LIQUIBASE_CHANGELOG (default: classpath:db/changelog/db.changelog-master.yml)
+- SECURITY_JWT_SECRET (default: change-me-please-32-bytes-minimum-change-me)
+- SECURITY_JWT_EXPIRATION_MS (default: 86400000)
+- SECURITY_JWT_COOKIE_NAME (default: AUTH_TOKEN)
 
 ### Run (PowerShell)
 ```powershell
@@ -23,6 +29,7 @@ $env:SPRING_DATASOURCE_USERNAME='postgres'
 $env:SPRING_DATASOURCE_PASSWORD='postgres'
 $env:SPRING_REDIS_HOST='localhost'
 $env:SPRING_REDIS_PORT='6379'
+ $env:SPRING_PROFILES_ACTIVE='dev' # 或 prod
 ./mvnw.cmd spring-boot:run
 ```
 
@@ -31,3 +38,34 @@ $env:SPRING_REDIS_PORT='6379'
 - OpenAPI: `http://localhost:8080/v3/api-docs`
 - Health: `GET /api/v1/health`
 - Connectivity: `GET /api/v1/connectivity`
+ - Auth Register: `POST /api/v1/auth/register`
+ - Auth Login: `POST /api/v1/auth/login`
+ - Auth Logout: `POST /api/v1/auth/logout`
+ - Auth Me: `GET /api/v1/auth/me`
+
+## Profiles
+- `application-dev.yml`: 开发环境，JPA 默认 `validate`（交由 Liquibase 管理）；显示 SQL；暴露健康详情。
+- `application-prod.yml`: 生产环境，JPA `validate`，关闭 SQL 日志。
+- 使用 `SPRING_PROFILES_ACTIVE=dev|prod` 切换。
+
+## Database Migrations (Liquibase)
+- 主入口：`db/changelog/db.changelog-master.yml`
+- 变更集：
+	- `001-init-products.yml`：`products` 表
+	- `002-auth-tables.yml`：`users`、`roles`、`user_roles`
+- 启停：`SPRING_LIQUIBASE_ENABLED=true|false`
+
+## Auth (JWT)
+- 登录成功后在 HttpOnly Cookie（默认名 `AUTH_TOKEN`）下发 JWT。
+- 配置项：`SECURITY_JWT_SECRET`、`SECURITY_JWT_EXPIRATION_MS`、`SECURITY_JWT_COOKIE_NAME`。
+- 开放端点：Swagger、`/api/v1/health`、`/api/v1/connectivity`、`/api/v1/auth/**`；其余 `/api/**` 需携带 JWT。
+
+### Quick Test (with default swagger)
+1. 注册：`POST /api/v1/auth/register`，Body：`{"username":"alice","password":"alice123"}`
+2. 登录：`POST /api/v1/auth/login`，成功后浏览器会存下 HttpOnly Cookie
+3. 查看当前用户：`GET /api/v1/auth/me`
+
+## Troubleshooting
+- Postgres 认证失败（FATAL: password authentication failed）：请检查 `SPRING_DATASOURCE_USERNAME/PASSWORD` 与数据库一致。
+- Liquibase 想先关闭排障：`SPRING_LIQUIBASE_ENABLED=false`。
+- Swagger 无法访问：确认 `springdoc.swagger-ui.path=/swagger-ui.html`，访问 `http://localhost:8080/swagger-ui.html`。
