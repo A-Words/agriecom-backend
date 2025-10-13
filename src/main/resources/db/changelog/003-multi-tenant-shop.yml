@@ -1,0 +1,90 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-shops-and-tenant-constraints
+      author: awords
+      comments: "引入店铺实体并为商品建立多租户外键约束。"
+      changes:
+        - createTable:
+            tableName: shops
+            remarks: "店铺主表，每条记录代表一个商户的数据边界。"
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: description
+                  type: TEXT
+              - column:
+                  name: logo_url
+                  type: VARCHAR(512)
+              - column:
+                  name: owner_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(32)
+                  defaultValue: PENDING_REVIEW
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addUniqueConstraint:
+            tableName: shops
+            columnNames: owner_id
+            constraintName: uq_shops_owner
+        - addForeignKeyConstraint:
+            baseTableName: shops
+            baseColumnNames: owner_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_shops_owner
+            onDelete: CASCADE
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: shop_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: products
+            baseColumnNames: shop_id
+            referencedTableName: shops
+            referencedColumnNames: id
+            constraintName: fk_products_shop
+            onDelete: CASCADE
+        - createIndex:
+            tableName: products
+            indexName: idx_products_shop_id
+            columns:
+              - column:
+                  name: shop_id
+  - changeSet:
+      id: 003-seed-merchant-role
+      author: awords
+      comments: "初始化 MERCHANT 角色，支持卖家账号。"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: "INSERT INTO roles (name) VALUES ('MERCHANT') ON CONFLICT (name) DO NOTHING"

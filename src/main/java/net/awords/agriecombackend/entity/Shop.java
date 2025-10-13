@@ -1,12 +1,16 @@
 package net.awords.agriecombackend.entity;
 
 import jakarta.persistence.*;
-import java.math.BigDecimal;
 import java.time.OffsetDateTime;
 
+/**
+ * Shop 实体代表平台上的独立店铺，是多租户隔离的核心边界。
+ */
 @Entity
-@Table(name = "products")
-public class Product {
+@Table(name = "shops", uniqueConstraints = {
+    @UniqueConstraint(name = "uq_shops_owner", columnNames = "owner_id")
+})
+public class Shop {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,18 +22,19 @@ public class Product {
     @Column(columnDefinition = "text")
     private String description;
 
-    @Column(nullable = false, precision = 12, scale = 2)
-    private BigDecimal price;
-
-    @Column(nullable = false)
-    private Integer stock;
+    @Column(name = "logo_url", length = 512)
+    private String logoUrl;
 
     /**
-     * 多租户关键：每个商品必须隶属于唯一的店铺。
+     * 店铺的归属用户，外键唯一约束保证“一个用户仅能拥有一个店铺”。
      */
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private Shop shop;
+    @JoinColumn(name = "owner_id", nullable = false)
+    private User owner;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 32)
+    private ShopStatus status = ShopStatus.PENDING_REVIEW;
 
     @Column(name = "created_at", nullable = false)
     private OffsetDateTime createdAt;
@@ -49,20 +54,22 @@ public class Product {
         this.updatedAt = OffsetDateTime.now();
     }
 
+    // region getter/setter
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
-    public BigDecimal getPrice() { return price; }
-    public void setPrice(BigDecimal price) { this.price = price; }
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
-    public Shop getShop() { return shop; }
-    public void setShop(Shop shop) { this.shop = shop; }
+    public String getLogoUrl() { return logoUrl; }
+    public void setLogoUrl(String logoUrl) { this.logoUrl = logoUrl; }
+    public User getOwner() { return owner; }
+    public void setOwner(User owner) { this.owner = owner; }
+    public ShopStatus getStatus() { return status; }
+    public void setStatus(ShopStatus status) { this.status = status; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    // endregion
 }

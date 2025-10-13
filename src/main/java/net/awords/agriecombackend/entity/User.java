@@ -33,6 +33,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     private Set<Role> roles = new HashSet<>();
 
+    /**
+     * 用户作为商户时拥有的店铺；mappedBy 保证实体关系与数据库唯一约束保持一致。
+     */
+    @OneToOne(mappedBy = "owner", fetch = FetchType.LAZY)
+    private Shop shop;
+
     @PrePersist
     public void prePersist() {
         OffsetDateTime now = OffsetDateTime.now();
@@ -57,4 +63,6 @@ public class User {
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
     public Set<Role> getRoles() { return roles; }
     public void setRoles(Set<Role> roles) { this.roles = roles; }
+    public Shop getShop() { return shop; }
+    public void setShop(Shop shop) { this.shop = shop; }
 }
