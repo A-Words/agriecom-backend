@@ -1,6 +1,7 @@
 package net.awords.agriecombackend.service;
 
 import net.awords.agriecombackend.dto.shop.ShopDtos;
+import net.awords.agriecombackend.dto.shop.ShopMapper;
 import net.awords.agriecombackend.entity.Role;
 import net.awords.agriecombackend.entity.Shop;
 import net.awords.agriecombackend.entity.ShopStatus;
@@ -48,7 +49,7 @@ public class ShopService {
         shopRepository.save(shop);
         ensureMerchantRole(owner);
 
-        return toDetailResponse(shop, 0L);
+        return ShopMapper.toDetailResponse(shop, 0L);
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +58,7 @@ public class ShopService {
         Shop shop = shopRepository.findByOwnerId(owner.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "尚未创建店铺"));
         long productCount = productRepository.countByShopId(shop.getId());
-        return toDetailResponse(shop, productCount);
+        return ShopMapper.toDetailResponse(shop, productCount);
     }
 
     @Transactional
@@ -73,7 +74,7 @@ public class ShopService {
         shopRepository.save(shop);
 
         long productCount = productRepository.countByShopId(shop.getId());
-        return toDetailResponse(shop, productCount);
+        return ShopMapper.toDetailResponse(shop, productCount);
     }
 
     private User loadUser(String username) {
@@ -101,20 +102,5 @@ public class ShopService {
                 });
         owner.getRoles().add(role);
         userRepository.save(owner);
-    }
-
-    private ShopDtos.DetailResponse toDetailResponse(Shop shop, long productCount) {
-        ShopDtos.DetailResponse detail = new ShopDtos.DetailResponse();
-        detail.id = shop.getId();
-        detail.name = shop.getName();
-        detail.description = shop.getDescription();
-        detail.logoUrl = shop.getLogoUrl();
-        detail.status = shop.getStatus();
-        detail.createdAt = shop.getCreatedAt();
-        detail.updatedAt = shop.getUpdatedAt();
-        detail.productCount = productCount;
-        detail.pendingOrderCount = 0L;
-        detail.completedOrderCount = 0L;
-        return detail;
     }
 }

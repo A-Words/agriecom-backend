@@ -6,5 +6,6 @@ package net.awords.agriecombackend.entity;
 public enum ShopStatus {
     PENDING_REVIEW,
     ACTIVE,
-    SUSPENDED
+    SUSPENDED,
+    REJECTED
 }
