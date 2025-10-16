@@ -75,6 +75,10 @@ public class ShopDtos {
         public String description;
         public BigDecimal price;
         public Integer stock;
+        public String category;
+        public String origin;
+        public Long sales;
+        public OffsetDateTime publishedAt;
     }
 
     /**

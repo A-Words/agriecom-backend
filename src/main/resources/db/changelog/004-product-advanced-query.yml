@@ -1,0 +1,57 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-extend-product-attributes
+      author: awords
+      comments: "扩展商品表字段，支持高级筛选与排序。"
+      changes:
+        - addColumn:
+            tableName: products
+            columns:
+              - column:
+                  name: category
+                  type: VARCHAR(100)
+                  remarks: "商品分类"
+              - column:
+                  name: origin
+                  type: VARCHAR(255)
+                  remarks: "产地"
+              - column:
+                  name: sales
+                  type: BIGINT
+                  defaultValueNumeric: 0
+                  remarks: "销量累计"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: published_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  remarks: "上架时间"
+                  constraints:
+                    nullable: false
+        - createIndex:
+            tableName: products
+            indexName: idx_products_category
+            columns:
+              - column:
+                  name: category
+        - createIndex:
+            tableName: products
+            indexName: idx_products_price
+            columns:
+              - column:
+                  name: price
+        - createIndex:
+            tableName: products
+            indexName: idx_products_published_at
+            columns:
+              - column:
+                  name: published_at
+  - changeSet:
+      id: 004-backfill-published-at
+      author: awords
+      comments: "补齐旧数据的上架时间，保持与创建时间一致。"
+      changes:
+        - sql:
+            splitStatements: false
+            sql: "UPDATE products SET published_at = COALESCE(published_at, created_at)"

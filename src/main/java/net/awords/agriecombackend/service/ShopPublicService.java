@@ -6,6 +6,7 @@ import net.awords.agriecombackend.entity.Shop;
 import net.awords.agriecombackend.entity.ShopStatus;
 import net.awords.agriecombackend.repository.ProductRepository;
 import net.awords.agriecombackend.repository.ShopRepository;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,13 +56,14 @@ public class ShopPublicService {
     }
 
     @Transactional(readOnly = true)
+    @Cacheable(cacheNames = "shop:detail", key = "#shopId")
     public ShopDtos.PublicDetail getPublicDetail(Long shopId) {
         Shop shop = shopRepository.findById(shopId)
                 .filter(s -> s.getStatus() == ShopStatus.ACTIVE)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "店铺不存在或未上线"));
 
         long productCount = productRepository.countByShopId(shop.getId());
-        var products = productRepository.findByShopIdOrderByCreatedAtDesc(shop.getId());
+        var products = productRepository.findByShopIdOrderByPublishedAtDesc(shop.getId());
         return ShopMapper.toPublicDetail(shop, productCount, products);
     }
 }

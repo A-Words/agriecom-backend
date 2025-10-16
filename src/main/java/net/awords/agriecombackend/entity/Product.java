@@ -24,6 +24,15 @@ public class Product {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(length = 100)
+    private String category;
+
+    @Column(length = 255)
+    private String origin;
+
+    @Column(nullable = false)
+    private Long sales = 0L;
+
     /**
      * 多租户关键：每个商品必须隶属于唯一的店铺。
      */
@@ -37,11 +46,20 @@ public class Product {
     @Column(name = "updated_at", nullable = false)
     private OffsetDateTime updatedAt;
 
+    @Column(name = "published_at", nullable = false)
+    private OffsetDateTime publishedAt;
+
     @PrePersist
     public void prePersist() {
         OffsetDateTime now = OffsetDateTime.now();
         this.createdAt = now;
         this.updatedAt = now;
+        if (this.publishedAt == null) {
+            this.publishedAt = now;
+        }
+        if (this.sales == null) {
+            this.sales = 0L;
+        }
     }
 
     @PreUpdate
@@ -59,10 +77,18 @@ public class Product {
     public void setPrice(BigDecimal price) { this.price = price; }
     public Integer getStock() { return stock; }
     public void setStock(Integer stock) { this.stock = stock; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
+    public String getOrigin() { return origin; }
+    public void setOrigin(String origin) { this.origin = origin; }
+    public Long getSales() { return sales; }
+    public void setSales(Long sales) { this.sales = sales; }
     public Shop getShop() { return shop; }
     public void setShop(Shop shop) { this.shop = shop; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
     public OffsetDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(OffsetDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public OffsetDateTime getPublishedAt() { return publishedAt; }
+    public void setPublishedAt(OffsetDateTime publishedAt) { this.publishedAt = publishedAt; }
 }

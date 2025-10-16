@@ -9,6 +9,8 @@ import net.awords.agriecombackend.entity.User;
 import net.awords.agriecombackend.repository.ProductRepository;
 import net.awords.agriecombackend.repository.ShopRepository;
 import net.awords.agriecombackend.repository.UserRepository;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,17 +27,20 @@ public class ShopProductService {
     private final ProductRepository productRepository;
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
+    private final CacheManager cacheManager;
 
-    public ShopProductService(ProductRepository productRepository, ShopRepository shopRepository, UserRepository userRepository) {
+    public ShopProductService(ProductRepository productRepository, ShopRepository shopRepository, UserRepository userRepository,
+                              CacheManager cacheManager) {
         this.productRepository = productRepository;
         this.shopRepository = shopRepository;
         this.userRepository = userRepository;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional(readOnly = true)
     public List<ProductDtos.Detail> list(String username) {
         Shop shop = requireActiveShop(username);
-        return productRepository.findAllByShopIdOrderByCreatedAtDesc(shop.getId()).stream()
+        return productRepository.findAllByShopIdOrderByPublishedAtDesc(shop.getId()).stream()
                 .map(ProductMapper::toDetail)
                 .toList();
     }
@@ -48,8 +53,11 @@ public class ShopProductService {
         product.setDescription(request.description);
         product.setPrice(request.price);
         product.setStock(request.stock);
+        product.setCategory(request.category);
+        product.setOrigin(request.origin);
         product.setShop(shop);
         productRepository.save(product);
+        evictCaches(shop.getId(), product.getId());
         return ProductMapper.toDetail(product);
     }
 
@@ -66,7 +74,10 @@ public class ShopProductService {
         product.setDescription(request.description);
         product.setPrice(request.price);
         product.setStock(request.stock);
+        product.setCategory(request.category);
+        product.setOrigin(request.origin);
         productRepository.save(product);
+        evictCaches(product.getShop().getId(), product.getId());
         return ProductMapper.toDetail(product);
     }
 
@@ -74,6 +85,7 @@ public class ShopProductService {
     public void delete(String username, Long productId) {
         Product product = findOwnedProduct(username, productId);
         productRepository.delete(product);
+        evictCaches(product.getShop().getId(), product.getId());
     }
 
     private Shop requireActiveShop(String username) {
@@ -88,5 +100,16 @@ public class ShopProductService {
         Shop shop = requireActiveShop(username);
         return productRepository.findByIdAndShopId(productId, shop.getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "商品不存在或不属于您的店铺"));
+    }
+
+    private void evictCaches(Long shopId, Long productId) {
+        Cache productCache = cacheManager.getCache("product:detail");
+        if (productCache != null && productId != null) {
+            productCache.evict(productId);
+        }
+        Cache shopCache = cacheManager.getCache("shop:detail");
+        if (shopCache != null && shopId != null) {
+            shopCache.evict(shopId);
+        }
     }
 }

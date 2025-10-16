@@ -57,6 +57,10 @@ public final class ShopMapper {
         summary.description = product.getDescription();
         summary.price = product.getPrice();
         summary.stock = product.getStock();
+        summary.category = product.getCategory();
+        summary.origin = product.getOrigin();
+        summary.sales = product.getSales();
+        summary.publishedAt = product.getPublishedAt();
         return summary;
     }
 }
