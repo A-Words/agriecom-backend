@@ -55,6 +55,10 @@ $env:SPRING_REDIS_PORT='6379'
 - Cart Update Item: `PUT /api/v1/cart/items/{productId}`
 - Cart Remove Item: `DELETE /api/v1/cart/items/{productId}`
 - Cart Clear: `POST /api/v1/cart/clear`
+- Me Profile: `GET /api/v1/me/profile`
+- Me Update Profile: `PUT /api/v1/me/profile`
+- Me Address List: `GET /api/v1/me/addresses`
+- Me Create Address: `POST /api/v1/me/addresses`
 
 ## Profiles
 - `application-dev.yml`: 开发环境，JPA 默认 `validate`（交由 Liquibase 管理）；显示 SQL；暴露健康详情。

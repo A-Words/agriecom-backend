@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import net.awords.agriecombackend.dto.ApiResponseDTO;
 import net.awords.agriecombackend.dto.product.ProductDtos;
 import net.awords.agriecombackend.service.ShopProductService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/my-shop/products")
 @Tag(name = "My Shop Products", description = "商户管理店铺商品")
+@PreAuthorize("hasRole(T(net.awords.agriecombackend.security.RoleConstants).MERCHANT)")
 public class MyShopProductController {
 
     private final ShopProductService shopProductService;

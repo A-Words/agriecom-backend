@@ -7,6 +7,7 @@ import net.awords.agriecombackend.dto.ApiResponseDTO;
 import net.awords.agriecombackend.dto.cart.CartDtos;
 import net.awords.agriecombackend.service.CartService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/v1/cart")
 @Tag(name = "Cart", description = "购物车接口")
+@PreAuthorize("hasRole(T(net.awords.agriecombackend.security.RoleConstants).USER)")
 public class CartController {
 
     private final CartService cartService;

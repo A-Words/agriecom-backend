@@ -10,6 +10,7 @@ import net.awords.agriecombackend.repository.ProductRepository;
 import net.awords.agriecombackend.repository.RoleRepository;
 import net.awords.agriecombackend.repository.ShopRepository;
 import net.awords.agriecombackend.repository.UserRepository;
+import net.awords.agriecombackend.security.RoleConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,8 +20,6 @@ import java.util.Optional;
 
 @Service
 public class ShopService {
-
-    private static final String MERCHANT_ROLE = "MERCHANT";
 
     private final ShopRepository shopRepository;
     private final UserRepository userRepository;
@@ -90,14 +89,14 @@ public class ShopService {
     }
 
     private void ensureMerchantRole(User owner) {
-        boolean alreadyMerchant = owner.getRoles().stream().anyMatch(r -> MERCHANT_ROLE.equalsIgnoreCase(r.getName()));
+        boolean alreadyMerchant = owner.getRoles().stream().anyMatch(r -> RoleConstants.MERCHANT.equalsIgnoreCase(r.getName()));
         if (alreadyMerchant) {
             return;
         }
-        Role role = roleRepository.findByName(MERCHANT_ROLE)
+        Role role = roleRepository.findByName(RoleConstants.MERCHANT)
                 .orElseGet(() -> {
                     Role newRole = new Role();
-                    newRole.setName(MERCHANT_ROLE);
+                    newRole.setName(RoleConstants.MERCHANT);
                     return roleRepository.save(newRole);
                 });
         owner.getRoles().add(role);

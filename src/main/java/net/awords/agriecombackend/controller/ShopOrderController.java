@@ -7,6 +7,7 @@ import net.awords.agriecombackend.dto.ApiResponseDTO;
 import net.awords.agriecombackend.dto.order.OrderDtos;
 import net.awords.agriecombackend.service.ShopOrderService;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/v1/my-shop/orders")
 @Tag(name = "Shop Orders", description = "商户订单管理")
+@PreAuthorize("hasRole(T(net.awords.agriecombackend.security.RoleConstants).MERCHANT)")
 public class ShopOrderController {
 
     private final ShopOrderService shopOrderService;

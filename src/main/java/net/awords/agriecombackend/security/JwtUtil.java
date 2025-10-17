@@ -15,6 +15,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 
 @Component
@@ -35,14 +36,20 @@ public class JwtUtil {
     }
 
     public String generateToken(String subject) {
+        return generateToken(subject, null);
+    }
+
+    public String generateToken(String subject, Collection<String> roles) {
         Date now = new Date();
         Date exp = new Date(now.getTime() + expirationMs);
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .setSubject(subject)
                 .setIssuedAt(now)
-                .setExpiration(exp)
-                .signWith(key, SignatureAlgorithm.HS256)
-                .compact();
+                .setExpiration(exp);
+        if (roles != null && !roles.isEmpty()) {
+            builder.claim("roles", String.join(",", roles));
+        }
+        return builder.signWith(key, SignatureAlgorithm.HS256).compact();
     }
 
     public Claims parse(String token) {

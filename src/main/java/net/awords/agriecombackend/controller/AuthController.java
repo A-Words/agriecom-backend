@@ -12,6 +12,7 @@ import net.awords.agriecombackend.entity.User;
 import net.awords.agriecombackend.repository.RoleRepository;
 import net.awords.agriecombackend.repository.UserRepository;
 import net.awords.agriecombackend.security.JwtUtil;
+import net.awords.agriecombackend.security.RoleConstants;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,6 +21,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 
 @RestController
@@ -47,9 +50,10 @@ public class AuthController {
         Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(req.username, req.password));
         SecurityContextHolder.getContext().setAuthentication(auth);
 
-        // 生成 JWT（包含简单的角色串）
-        String roles = auth.getAuthorities().stream().map(a -> a.getAuthority().replace("ROLE_", "")).reduce((a,b) -> a + "," + b).orElse("");
-        String token = jwtUtil.generateToken(auth.getName());
+        User user = userRepository.findByUsername(auth.getName()).orElseThrow();
+    String[] roleArray = user.getRoles().stream().map(Role::getName).toArray(String[]::new);
+    List<String> roleNames = Arrays.stream(roleArray).toList();
+    String token = jwtUtil.generateToken(auth.getName(), roleNames);
 
         Cookie cookie = new Cookie(jwtUtil.getCookieName(), token);
         cookie.setHttpOnly(true);
@@ -57,11 +61,10 @@ public class AuthController {
         // 可按需设置 SameSite/secure
         response.addCookie(cookie);
 
-        User user = userRepository.findByUsername(auth.getName()).orElseThrow();
         AuthDtos.UserInfo info = new AuthDtos.UserInfo();
         info.id = user.getId();
         info.username = user.getUsername();
-        info.roles = roles.isBlank() ? new String[]{} : roles.split(",");
+        info.roles = roleArray;
         return ApiResponseDTO.success(info);
     }
 
@@ -75,8 +78,8 @@ public class AuthController {
         User u = new User();
         u.setUsername(req.username);
         u.setPassword(passwordEncoder.encode(req.password));
-        Role role = roleRepository.findByName("USER").orElseGet(() -> {
-            Role r = new Role(); r.setName("USER"); return roleRepository.save(r);
+        Role role = roleRepository.findByName(RoleConstants.USER).orElseGet(() -> {
+            Role r = new Role(); r.setName(RoleConstants.USER); return roleRepository.save(r);
         });
         u.setRoles(Set.of(role));
         userRepository.save(u);
@@ -84,7 +87,7 @@ public class AuthController {
         AuthDtos.UserInfo info = new AuthDtos.UserInfo();
         info.id = u.getId();
         info.username = u.getUsername();
-        info.roles = new String[]{"USER"};
+        info.roles = new String[]{RoleConstants.USER};
         return ApiResponseDTO.success(info);
     }
 

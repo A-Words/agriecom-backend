@@ -11,3 +11,5 @@ databaseChangeLog:
       file: db/changelog/005-orders.yml
   - include:
       file: db/changelog/006-cart.yml
+  - include:
+      file: db/changelog/007-user-profile-address.yml

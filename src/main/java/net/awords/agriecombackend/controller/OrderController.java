@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import net.awords.agriecombackend.dto.ApiResponseDTO;
 import net.awords.agriecombackend.dto.order.OrderDtos;
 import net.awords.agriecombackend.service.OrderService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,6 +25,7 @@ import org.springframework.http.HttpStatus;
 @RestController
 @RequestMapping("/api/v1")
 @Tag(name = "Orders", description = "买家订单操作")
+@PreAuthorize("hasRole(T(net.awords.agriecombackend.security.RoleConstants).USER)")
 public class OrderController {
 
     private final OrderService orderService;
