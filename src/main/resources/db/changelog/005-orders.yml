@@ -1,0 +1,198 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-create-orders
+      author: awords
+      comments: "订单与子订单、订单项的数据结构。"
+      changes:
+        - createTable:
+            tableName: order_groups
+            remarks: "买家订单聚合表"
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: buyer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_amount
+                  type: NUMERIC(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shipping_address
+                  type: VARCHAR(512)
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: order_groups
+            baseColumnNames: buyer_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_order_groups_buyer
+            onDelete: CASCADE
+        - createIndex:
+            tableName: order_groups
+            indexName: idx_order_groups_buyer_created
+            columns:
+              - column:
+                  name: buyer_id
+              - column:
+                  name: created_at
+        - createTable:
+            tableName: shop_orders
+            remarks: "商户拆单表"
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: order_group_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shop_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: VARCHAR(32)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: total_amount
+                  type: NUMERIC(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: shipping_address
+                  type: VARCHAR(512)
+              - column:
+                  name: logistics_provider
+                  type: VARCHAR(128)
+              - column:
+                  name: tracking_number
+                  type: VARCHAR(128)
+              - column:
+                  name: shipped_at
+                  type: TIMESTAMP WITH TIME ZONE
+              - column:
+                  name: created_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP WITH TIME ZONE
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: shop_orders
+            baseColumnNames: order_group_id
+            referencedTableName: order_groups
+            referencedColumnNames: id
+            constraintName: fk_shop_orders_group
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: shop_orders
+            baseColumnNames: shop_id
+            referencedTableName: shops
+            referencedColumnNames: id
+            constraintName: fk_shop_orders_shop
+            onDelete: CASCADE
+        - createIndex:
+            tableName: shop_orders
+            indexName: idx_shop_orders_shop_created
+            columns:
+              - column:
+                  name: shop_id
+              - column:
+                  name: created_at
+        - createTable:
+            tableName: order_items
+            remarks: "订单项"
+            columns:
+              - column:
+                  name: id
+                  type: BIGSERIAL
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: shop_order_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: product_snapshot_price
+                  type: NUMERIC(12,2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: quantity
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: subtotal
+                  type: NUMERIC(12,2)
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: shop_order_id
+            referencedTableName: shop_orders
+            referencedColumnNames: id
+            constraintName: fk_order_items_shop_order
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: order_items
+            baseColumnNames: product_id
+            referencedTableName: products
+            referencedColumnNames: id
+            constraintName: fk_order_items_product
+            onDelete: RESTRICT
+        - createIndex:
+            tableName: order_items
+            indexName: idx_order_items_product
+            columns:
+              - column:
+                  name: product_id
+*** End of File

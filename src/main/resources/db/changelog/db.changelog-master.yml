@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/003-multi-tenant-shop.yml
   - include:
       file: db/changelog/004-product-advanced-query.yml
+  - include:
+      file: db/changelog/005-orders.yml

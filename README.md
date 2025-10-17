@@ -45,6 +45,11 @@ $env:SPRING_REDIS_PORT='6379'
 - Products List (分页/排序/筛选): `GET /api/v1/products`
 - Products Search: `GET /api/v1/products/search`
 - Product Detail (Redis 缓存): `GET /api/v1/products/{id}`
+- Create Order: `POST /api/v1/orders`
+- My Orders: `GET /api/v1/my-orders`
+- Cancel Order: `PUT /api/v1/my-orders/{id}/cancel`
+- Shop Orders: `GET /api/v1/my-shop/orders`
+- Ship Order: `PUT /api/v1/my-shop/orders/{id}/ship`
 
 ## Profiles
 - `application-dev.yml`: 开发环境，JPA 默认 `validate`（交由 Liquibase 管理）；显示 SQL；暴露健康详情。
