@@ -50,6 +50,11 @@ $env:SPRING_REDIS_PORT='6379'
 - Cancel Order: `PUT /api/v1/my-orders/{id}/cancel`
 - Shop Orders: `GET /api/v1/my-shop/orders`
 - Ship Order: `PUT /api/v1/my-shop/orders/{id}/ship`
+- Cart Detail: `GET /api/v1/cart`
+- Cart Add Item: `POST /api/v1/cart/items`
+- Cart Update Item: `PUT /api/v1/cart/items/{productId}`
+- Cart Remove Item: `DELETE /api/v1/cart/items/{productId}`
+- Cart Clear: `POST /api/v1/cart/clear`
 
 ## Profiles
 - `application-dev.yml`: 开发环境，JPA 默认 `validate`（交由 Liquibase 管理）；显示 SQL；暴露健康详情。
