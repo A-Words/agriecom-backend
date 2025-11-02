@@ -195,4 +195,3 @@ databaseChangeLog:
             columns:
               - column:
                   name: product_id
-*** End of File

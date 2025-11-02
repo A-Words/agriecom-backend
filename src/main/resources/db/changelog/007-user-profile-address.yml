@@ -105,9 +105,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: MARK_RAN
-        - sqlCheck:
-            expectedResult: 0
-            sql: SELECT COUNT(*) FROM roles WHERE name = 'USER'
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM roles WHERE name = 'USER'
       changes:
         - insert:
             tableName: roles
@@ -121,9 +121,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: MARK_RAN
-        - sqlCheck:
-            expectedResult: 0
-            sql: SELECT COUNT(*) FROM roles WHERE name = 'MERCHANT'
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM roles WHERE name = 'MERCHANT'
       changes:
         - insert:
             tableName: roles
@@ -137,9 +137,9 @@ databaseChangeLog:
       preConditions:
         onFail: MARK_RAN
         onError: MARK_RAN
-        - sqlCheck:
-            expectedResult: 0
-            sql: SELECT COUNT(*) FROM roles WHERE name = 'ADMIN'
+        sqlCheck:
+          expectedResult: 0
+          sql: SELECT COUNT(*) FROM roles WHERE name = 'ADMIN'
       changes:
         - insert:
             tableName: roles

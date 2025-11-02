@@ -64,4 +64,3 @@ databaseChangeLog:
             columns:
               - column:
                   name: user_id
-*** End of File
